@@ -17,12 +17,17 @@ const Weather = () => {
   const inputRef = useRef()
   const [weatherData, setWeatherData] = useState(false);
 
+
   const handleKey = (event) => {
     if (event.key === 'Enter') {
-      search(inputRef.current.value);
+      const inputValues = inputRef.current.value.split(',');
+      const city = inputValues[0]?.trim();
+      const state = inputValues[1]?.trim() || ''; 
+      const country = inputValues[2]?.trim() || ''; 
+      search(city, state, country);
     }
-  };
-
+  }
+  
 
   const allIcons = {
     "01d": cleared,
@@ -41,18 +46,19 @@ const Weather = () => {
     "13n": snowy,
   }
 
-  const search = async (city) => {
+  const search = async (city, state, country) => {
     if(city === "")
     {
       alert(`Please,Enter the city name!`)
     }
     try {
-      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=${import.meta.env.VITE_APP_ID}`
+      const url =`https://api.openweathermap.org/data/2.5/weather?q=${city},${state},${country}&units=metric&appid=${import.meta.env.VITE_APP_ID}`
 
       console.log(url); 
       
       const response = await fetch(url);
       const data = await response.json();
+
       console.log(data)
       const icon = allIcons[data.weather[0].icon]||cleared;
       setWeatherData({
@@ -64,16 +70,12 @@ const Weather = () => {
         icon: icon
       })
     } catch (error) {
-      alert(error.message)
+      alert("Enter correct city name!");
     }
-  }
-
-  const cityImage = async(city) => {
-
-  }
+  };
 
   useEffect(() => {
-    search("Jodhpur")
+    search("Jodhpur", "Rajasthan", "India")
   },[])
 
   return (
@@ -85,7 +87,13 @@ const Weather = () => {
       <div className='left-side'>
       <div className='search-place'>
         <input ref={inputRef} className='input-place' type='text' alt='Search City' placeholder='Search City' onKeyDown={handleKey}/>
-        <img src={search_engine} alt='search' className='img-search' onClick={()=>search(inputRef.current.value)}/>
+        <img src={search_engine} alt='search' className='img-search' onClick={() => {
+                const inputValues = inputRef.current.value.split(',');
+                const city = inputValues[0]?.trim();
+                const state = inputValues[1]?.trim() || '';
+                const country = inputValues[2]?.trim() || '';
+                search(city, state, country);
+              }}/>
         <img src={cloudy} alt='search' className='img-weather'/>
       </div>
       <div className='all-together'>
